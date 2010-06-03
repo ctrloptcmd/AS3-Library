@@ -1,0 +1,88 @@
+package com.ctrloptcmd.utils {
+
+		/**
+	 	*		XTrace.as
+	 	*
+	 	*		@langversion	: ActionScript 3.0
+	 	*		@playerversion	: Flash 9.0
+	 	*
+		*		@author			: Martin Jacobsen
+		*		@since			: 24-03-2009
+		*		@description 	: 	Hugely improved upon since last version. Now accepts .log() 
+		*								.info() .warn() and .error().	Will now display icons in console
+		*								 to alert about status. Will also show properties of objects
+		*								(of datatype "Object") in console, but not (yet) in Flash output 
+		*								panel. I'm a tad worried about whether the "•" character will 
+		*								display correctly on Wintendo boxes, so please alert me about 
+		*								that. It should display like so: http://ctrloptcmd.com/flash/dotglyph.png
+		*								When that's said and done; Usage is as before only now you have the 
+		*								possibility of using diferent levels of logging. W00t!
+		*	
+		*								HOWEVER: I can't keep on maintaining several versions of this 
+		*								code before Andreas teaches me how to split my repos without 
+		*								eventually messing something up... Badly. And this is beyond a
+		*								doubt a piece of code I'll keep on using in projects that shouldn't
+		*								have Creunas name in the source code and that I'll be taking
+		*								with me if I should ever leave Creuna. Which is why this file
+		*								will now rest safely in com.ctrloptcmd.utils
+		*								If you intend to ever use any of the methods beyond XTrace.log()
+		*								please update your libraries. Nothing should break if you just
+		*								keep using that one option though, so all old code is safe.
+		*/
+	
+
+	import flash.system.Capabilities;
+	import flash.external.ExternalInterface;
+	
+	public class XTrace {
+
+		public static var ENABLED 		: Boolean = true;
+		public static var HAS_WARNED 	: Boolean = false;
+
+		public function XTrace(){	/*...*/	}	
+
+		public static function log(...args) : void {
+			var logEntry = (args.length > 1) ? args.join(" • ") : args[0];
+				XTrace.sendToConsole("console.log" , logEntry);
+		}
+
+		public static function info(...args) : void {
+			var logEntry = (args.length > 1) ? args.join(" • ") : args[0];
+				XTrace.sendToConsole("console.info" , logEntry);
+		}
+
+		public static function warn(...args) : void {
+			var logEntry = (args.length > 1) ? args.join(" • ") : args[0];
+				XTrace.sendToConsole("console.warn" , logEntry);
+		}
+
+		public static function error(...args) : void {
+			var logEntry = (args.length > 1) ? args.join(" • ") : args[0];
+				XTrace.sendToConsole("console.error" , logEntry);
+		}
+
+		public static function sendToConsole(logLevel : String , str : * = "") : void {
+			if(ENABLED){
+				switch (Capabilities.playerType) {
+	            case "PlugIn":
+	            case "ActiveX":
+	            try {
+						ExternalInterface.call(logLevel, str);
+						} catch (e:Error) {
+							trace("Something went screwy.", e.message)
+						}
+
+	            break;
+	
+					default :
+						trace(str);
+					break;
+	        }
+			} else {
+				if(!HAS_WARNED)
+					trace("XTrace is not enabled. Set XTrace.ENABLED to true to receive log messages.")
+					HAS_WARNED = true;
+			} 
+		}
+	}
+}
